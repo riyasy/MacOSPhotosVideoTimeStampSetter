@@ -10,3 +10,7 @@ The workflow follwed is like this.
 4. In Photos App, select all the files for which we need to set the date from the file name.
 5. Run the script.
 6. Voila, now we have all the wrong dates set to the correct date as seen in the file name.
+
+
+SetDateFromTitle.scpt is the actual script file.
+SetDateFromTitle.txt is to see the contents using github viewer.

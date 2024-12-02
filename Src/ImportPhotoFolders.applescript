@@ -1,18 +1,18 @@
 on run
 	set folderList to (choose folder with multiple selections allowed)
-
+	
 	tell application "Photos"
 		activate
 		delay 2
 	end tell
-
+	
 	repeat with baseFolder in folderList
 		importEachSubFolder(baseFolder, null)
 	end repeat
 end run
 
 to replaceText(someText, oldItem, newItem)
-    (*
+	(*
      replace all occurances of oldItem with newItem
           parameters -     someText [text]: the text containing the item(s) to change
                     oldItem [text, list of text]: the item to be replaced
@@ -36,27 +36,30 @@ on importEachSubFolder(aFolder, parentFolder)
 		set albumName to (name of aFolder as text)
 		set subFolders to every folder of aFolder
 	end tell
-
---	set albumName to replaceText(albumName, "_", space)   --if you want to change a special character (such as _ ) to spaces in Album names, uncomment this line
+	
+	--	set albumName to replaceText(albumName, "_", space)   --if you want to change a special character (such as _ ) to spaces in Album names, uncomment this line
 	if (count of subFolders) > 0 then
 		set fotoFolder to createFotoFolder(aFolder, albumName, parentFolder)
-
+		
 		repeat with eachFolder in subFolders
-			importEachSubFolder(eachFolder as alias, fotoFolder)
+			tell application "Finder" to set folderName to name of eachFolder
+			if folderName is not "Deleted" and folderName is not "Edited" then
+				importEachSubFolder(eachFolder as alias, fotoFolder)
+			end if
 		end repeat
 	else
 		set fotoFolder to parentFolder
 	end if
-
+	
 	importFotosV2(aFolder, albumName, fotoFolder)
 end importEachSubFolder
 
 on importFotos(aFolder, albumName, parentFolder)
 	set imageList to getImageList(aFolder)
 	if imageList is {} then return
-
+	
 	set fotoAlbum to createFotoAlbum(albumName, parentFolder)
-
+	
 	tell application "Photos"
 		with timeout of (30 * 60) seconds
 			import imageList into fotoAlbum skip check duplicates no
@@ -162,9 +165,10 @@ end getImageListV2
 on IsMedia(fileName)
 	set extensionsList to {"HEIC", "JPG", "JPEG", "NEF", "ARW", "TIFF", "MOV", "MP4", "PNG", "TIFF", "TIF", "AVI", "WMV", "GIF", "3GP", "M4V"}
 	set itemCount to (get count of items in extensionsList)
+	
 	repeat with i from 1 to itemCount
 		set ext to item i of the extensionsList
-		if fileName contains ("." & ext) then
+		if fileName contains ("." & ext) and not (fileName contains ("original")) then
 			return true
 		end if
 	end repeat
